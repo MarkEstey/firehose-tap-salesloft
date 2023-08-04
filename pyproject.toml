@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "firehose-tap-salesloft"
+version = "0.1.0"
+description = "`tap-salesloft` is a Singer tap for Salesloft, built with the Meltano Singer SDK."
+readme = "README.md"
+authors = ["Mark Estey"]
+keywords = [
+    "ELT",
+    "Salesloft",
+]
+license = "Apache-2.0"
+packages = [
+    { include = "tap_salesloft" },
+]
+
+[tool.poetry.dependencies]
+python = "<3.11,>=3.7.1"
+singer-sdk = { version="^0.30.0" }
+fs-s3fs = { version = "^1.1.1", optional = true }
+requests = "^2.31.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.1"
+singer-sdk = { version="^0.30.0", extras = ["testing"] }
+
+[tool.poetry.extras]
+s3 = ["fs-s3fs"]
+
+[build-system]
+requires = ["poetry-core>=1.0.8"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+# CLI declaration
+tap-salesloft = 'tap_salesloft.tap:TapSalesloft.cli'
