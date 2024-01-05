@@ -1,7 +1,5 @@
 from tap_salesloft.client import SalesloftStream
 
-from singer_sdk.helpers._typing import TypeConformanceLevel
-
 from singer_sdk.typing import (
     ArrayType,
     BooleanType,
@@ -21,8 +19,6 @@ class AccountsStream(SalesloftStream):
     path = "/v2/accounts"
     primary_keys = ["id"]
     replication_key = "updated_at"
-
-    TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.ROOT_ONLY
 
     schema = PropertiesList(
         Property(

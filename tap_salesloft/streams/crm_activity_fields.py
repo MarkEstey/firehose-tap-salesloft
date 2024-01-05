@@ -1,7 +1,5 @@
 from tap_salesloft.client import SalesloftStream
 
-from singer_sdk.helpers._typing import TypeConformanceLevel
-
 from singer_sdk.typing import (
     DateTimeType,
     IntegerType,
@@ -18,8 +16,6 @@ class CrmActivityFieldsStream(SalesloftStream):
     name = "crm_activity_fields"
     path = "/v2/crm_activity_fields"
     primary_keys = ["id"]
-
-    TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.ROOT_ONLY
 
     schema = PropertiesList(
         Property(

@@ -1,7 +1,5 @@
 from tap_salesloft.client import SalesloftStream
 
-from singer_sdk.helpers._typing import TypeConformanceLevel
-
 from singer_sdk.typing import (
     BooleanType,
     DateTimeType,
@@ -20,8 +18,6 @@ class EmailsStream(SalesloftStream):
     path = "/v2/activities/emails"
     primary_keys = ["id"]
     replication_key = "updated_at"
-
-    TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.ROOT_ONLY
 
     schema = PropertiesList(
         Property(

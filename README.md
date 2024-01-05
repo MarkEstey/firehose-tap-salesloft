@@ -24,20 +24,21 @@ pipx install git+https://github.com/MarkEstey/firehose-tap-salesloft.git
 
 ## Settings
 
-| Setting             | Required | Default | Description |
-|:--------------------|:--------:|:-------:|:------------|
-| api_base_url        | False    | https://api.salesloft.com | The base url for the Salesloft API service |
-| api_key             | True     | None    | The token to authenticate against the API service |
-| page_size           | False    |     100 | The number of results to request per page. Must be in the range 1-100. |
-| rate_target_pct     | False    |      80 | The percentage of the rate limit to consume. Must be in the range 1-100. |
-| start_date          | False    | 2011-09-01T00:00:00+00:00 | The earliest record date to sync |
-| stream_maps         | False    | None    | Inline stream maps (see: https://sdk.meltano.com/en/latest/stream_maps.html) |
-| stream_maps_config  | False    | None    | Inline stream maps config (see: https://sdk.meltano.com/en/latest/stream_maps.html) |
-| user_agent          | False    | tap-salesloft | The user-agent string provided on outgoing requests |
-| stream_map_config   | False    | None    | User-defined config values to be used within map expressions. |
-| flattening_enabled  | False    | None    | 'True' to enable schema flattening and automatically expand nested properties. |
-| flattening_max_depth| False    | None    | The max depth to flatten schemas. |
-| batch_config        | False    | None    |             |
+| Setting                 | Required | Default                   | Description |
+|:------------------------|:--------:|:-------------------------:|:------------|
+| api_base_url            | False    | https://api.salesloft.com | The base url for the Salesloft API service |
+| api_key                 | True     | None                      | The token to authenticate against the API service |
+| page_size               | False    | 100                       | The number of results to request per page. Must be in the range 1-100. |
+| rate_target_pct         | False    | 80                        | The percentage of the rate limit to consume. Must be in the range 1-100. |
+| start_date              | False    | 2011-09-01T00:00:00+00:00 | The earliest record date to sync |
+| stream_type_conformance | False    | root_only                 | The level of type conformance to apply to streams (see: https://sdk.meltano.com/en/latest/classes/singer_sdk.Stream.html#singer_sdk.Stream.TYPE_CONFORMANCE_LEVEL). Defaults to 'root_only'. Must be one of: 'none', 'root_only', 'recursive' |
+| stream_maps             | False    | None                      | Inline stream maps (see: https://sdk.meltano.com/en/latest/stream_maps.html) |
+| stream_maps_config      | False    | None                      | Inline stream maps config (see: https://sdk.meltano.com/en/latest/stream_maps.html) |
+| user_agent              | False    | tap-salesloft             | The user-agent string provided on outgoing requests |
+| stream_map_config       | False    | None                      | User-defined config values to be used within map expressions. |
+| flattening_enabled      | False    | None                      | 'True' to enable schema flattening and automatically expand nested properties. |
+| flattening_max_depth    | False    | None                      | The max depth to flatten schemas. |
+| batch_config            | False    | None                      |             |
 
 A full list of supported settings and capabilities for this tap is available by running:
 

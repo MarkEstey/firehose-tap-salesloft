@@ -47,6 +47,15 @@ class TapSalesloft(Tap):
             description="The earliest record date to sync",
         ),
         th.Property(
+            "stream_type_conformance",
+            th.StringType,
+            default="root_only",
+            description="The level of type conformance to apply to streams "
+            "(see: https://sdk.meltano.com/en/latest/classes/singer_sdk.Stream.html#singer_sdk.Stream.TYPE_CONFORMANCE_LEVEL). "
+            "Defaults to 'root_only'. Must be one of: 'none', 'root_only', 'recursive'",
+            allowed_values=["none", "root_only", "recursive"],
+        ),
+        th.Property(
             "stream_maps",
             th.ObjectType(),
             description="Inline stream maps (see: https://sdk.meltano.com/en/latest/stream_maps.html)",

@@ -28,6 +28,8 @@ plugins:
       kind: integer
     - name: rate_target_pct
       kind: integer
+    - name: stream_type_conformance
+      king: string
     - name: start_date
       kind: date_iso8601
     - name: stream_maps

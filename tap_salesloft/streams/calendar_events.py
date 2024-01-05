@@ -51,9 +51,21 @@ class CalendarEventsStream(SalesloftStream):
             description="The (inclusive) start time of the calendar event.",
         ),
         Property(
+            "recurring_interval",
+            StringType,
+            description="Specifies how often a recurring event repeats (Daily, Weekly, Monthly, Yearly). "
+            "This field is omitted for single events or instances of recurring events.",
+        ),
+        Property(
             "recurring",
             BooleanType,
             description="Whether the calendar event is a recurring event.",
+        ),
+        Property(
+            "recurrence",
+            ArrayType(StringType),
+            description="List of RRULE for a recurring event, as specified in RFC5545. "
+            "This field is omitted for single events or instances of recurring events.",
         ),
         Property(
             "provider",
@@ -69,6 +81,11 @@ class CalendarEventsStream(SalesloftStream):
             "location",
             StringType,
             description="Location of the calendar event",
+        ),
+        Property(
+            "last_occurrence_at",
+            DateTimeType,
+            description="The timestamp of the last occurrence in a series of recurring events.",
         ),
         Property(
             "id",

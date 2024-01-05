@@ -1,8 +1,10 @@
 from tap_salesloft.client import SalesloftStream
 
 from singer_sdk.typing import (
+    ArrayType,
     DateTimeType,
     IntegerType,
+    ObjectType,
     PropertiesList,
     Property,
     StringType,
@@ -24,6 +26,11 @@ class ImportsStream(SalesloftStream):
             description="Import ID",
         ),
         Property(
+            "name",
+            StringType,
+            description="Name of Import",
+        ),
+        Property(
             "created_at",
             DateTimeType,
             description="Datetime of when the import was created",
@@ -34,11 +41,6 @@ class ImportsStream(SalesloftStream):
             description="Datetime of when the import was last updated, ignoring relationship changes",
         ),
         Property(
-            "name",
-            StringType,
-            description="Name of Import",
-        ),
-        Property(
             "current_people_count",
             IntegerType,
             description="Count of People that have not been deleted",
@@ -47,5 +49,10 @@ class ImportsStream(SalesloftStream):
             "imported_people_count",
             IntegerType,
             description="Count of People that have ever been on this Import",
+        ),
+        Property(
+            "errors_list",
+            ArrayType(ObjectType()),
+            description="Array of the errors",
         ),
     ).to_dict()

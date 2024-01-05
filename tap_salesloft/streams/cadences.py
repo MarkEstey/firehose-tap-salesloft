@@ -115,11 +115,11 @@ class CadencesStream(SalesloftStream):
             ArrayType(StringType),
             description="All tags applied to this cadence",
         ),
-        # Documentation does not list this property
         Property(
             "current_state",
             StringType,
-            description="[Undocumented]",
+            description="The state of the Cadence. Read Only. "
+            "Valid states are: draft, active, archived, expired, deleted",
         ),
         Property(
             "creator",

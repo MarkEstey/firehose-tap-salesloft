@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import Any, Callable, Iterable
 
-import logging
 import re
 import requests
 import time
 
 from singer_sdk.authenticators import BearerTokenAuthenticator
+from singer_sdk.helpers._typing import TypeConformanceLevel
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.pagination import BaseAPIPaginator  # noqa: TCH002
 from singer_sdk.streams import RESTStream
@@ -21,8 +21,26 @@ second_match = re.compile("[0-9]{2}:[0-9]{2}:([0-9]{2})")
 class SalesloftStream(RESTStream):
     """Salesloft stream class."""
 
-    records_jsonpath = "$.data[*]"
-    next_page_token_jsonpath = "$.metadata.paging.next_page"  # noqa: S105
+    def __init__(self, tap, name = None, schema = None, path = None):
+        """Initialize the REST stream.
+
+        Args:
+            tap: Singer Tap this stream belongs to.
+            schema: JSON schema for records in this stream.
+            name: Name of this stream.
+            path: URL path for this entity stream.
+        """
+        super().__init__(tap=tap, name=name, schema=schema, path=path)
+
+        if self.config.get("stream_type_conformance") == "none":
+            self.TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.NONE
+        elif self.config.get("stream_type_conformance") == "root_only":
+            self.TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.ROOT_ONLY
+        elif self.config.get("stream_type_conformance") == "recursive":
+            self.TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.RECURSIVE
+
+        self.records_jsonpath = "$.data[*]"
+        self.next_page_token_jsonpath = "$.metadata.paging.next_page"  # noqa: S105
 
     @property
     def url_base(self) -> str:

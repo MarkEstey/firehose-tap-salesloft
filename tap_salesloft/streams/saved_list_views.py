@@ -45,4 +45,9 @@ class SavedListViewsStream(SalesloftStream):
             BooleanType,
             description="Whether the saved list view is the default view",
         ),
+        Property(
+            "shared",
+            BooleanType,
+            description="Whether the view is public to the team or not",
+        ),
     ).to_dict()

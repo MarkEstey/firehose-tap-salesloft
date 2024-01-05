@@ -1,7 +1,5 @@
 from tap_salesloft.client import SalesloftStream
 
-from singer_sdk.helpers._typing import TypeConformanceLevel
-
 from singer_sdk.typing import (
     BooleanType,
     DateTimeType,
@@ -19,8 +17,6 @@ class UsersStream(SalesloftStream):
     name = "users"
     path = "/v2/users"
     primary_keys = ["id"]
-
-    TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.ROOT_ONLY
 
     schema = PropertiesList(
         Property(

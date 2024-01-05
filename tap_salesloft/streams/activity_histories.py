@@ -1,7 +1,5 @@
 from tap_salesloft.client import SalesloftStream
 
-from singer_sdk.helpers._typing import TypeConformanceLevel
-
 from singer_sdk.typing import (
     ArrayType,
     DateTimeType,
@@ -20,8 +18,6 @@ class ActivityHistoriesStream(SalesloftStream):
     path = "/v2/activity_histories"
     primary_keys = ["id"]
     replication_key = "updated_at"
-
-    TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.ROOT_ONLY
 
     schema = PropertiesList(
         Property(
@@ -65,12 +61,11 @@ class ActivityHistoriesStream(SalesloftStream):
             DateTimeType,
             description="When this activity occurred",
         ),
-        # Documentation states 'id' type is integer, API returns string
         Property(
             "id",
             StringType,
             required=True,
-            description="ID of this activity",
+            description="ID of this activity in {type}-{id} format",
         ),
         Property(
             "failed_dynamic_resources",

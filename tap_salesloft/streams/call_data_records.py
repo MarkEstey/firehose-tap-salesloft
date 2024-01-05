@@ -105,6 +105,21 @@ class CallDataRecordsStream(SalesloftStream):
             ),
         ),
         Property(
+            "dialer_recording",
+            ObjectType(
+                Property(
+                    "_href",
+                    StringType,
+                    description="Resource URL, pointed at your API version, present if this resource is available in the API",
+                ),
+                Property(
+                    "uuid",
+                    StringType,
+                    description="UUID of the resource",
+                ),
+            ),
+        ),
+        Property(
             "call",
             ObjectType(
                 Property("id", IntegerType),
