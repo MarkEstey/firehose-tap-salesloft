@@ -7,24 +7,14 @@ from singer_sdk.typing import (
     StringType,
 )
 
-
 class TagsStream(SalesloftStream):
-    """Tags Stream, referenced from https://developers.salesloft.com/docs/api/tags-index"""
+    '''Tags Stream, referenced from https://developers.salesloft.com/docs/api/tags-index'''
 
-    name = "tags"
-    path = "/v2/tags"
-    primary_keys = ["id"]
+    name = 'tags'
+    path = '/v2/tags'
+    primary_keys = ['id']
 
     schema = PropertiesList(
-        Property(
-            "id",
-            IntegerType,
-            required=True,
-            description="ID of Tag",
-        ),
-        Property(
-            "name",
-            StringType,
-            description="Name of the tag",
-        ),
+        Property('id', IntegerType, required=True, description='ID of Tag', examples=[1]),
+        Property('name', StringType, description='Name of the tag', examples=['marketing']),
     ).to_dict()

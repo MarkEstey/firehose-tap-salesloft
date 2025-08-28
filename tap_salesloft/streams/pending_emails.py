@@ -8,32 +8,23 @@ from singer_sdk.typing import (
     StringType,
 )
 
-
 class PendingEmailsStream(SalesloftStream):
-    """Pending Emails Stream, referenced from https://developers.salesloft.com/docs/api/pending-emails-index"""
+    '''Pending Emails Stream, referenced from https://developers.salesloft.com/docs/api/pending-emails-index'''
 
-    name = "pending_emails"
-    path = "/v2/pending_emails"
-    primary_keys = ["id"]
+    name = 'pending_emails'
+    path = '/v2/pending_emails'
+    primary_keys = ['id']
 
     schema = PropertiesList(
+        Property('id', IntegerType, required=True, description='ID of the email', examples=[1]),
+        Property('mailbox', StringType, description='Email Address of the pending email', examples=['example@salesloft.com']),
+
         Property(
-            "id",
-            IntegerType,
-            required=True,
-            description="ID of the email",
-        ),
-        Property(
-            "mailbox",
-            StringType,
-            description="Email Address of the pending email",
-        ),
-        Property(
-            "mime_email_payload",
+            'mime_email_payload',
             ObjectType(
-                Property("id", IntegerType),
-                Property("_href", StringType),
+                Property('id', IntegerType, examples=[1]),
+                Property('_href', StringType, examples=['https://api.salesloft.com/v2/mime_email_payloads/1']),
             ),
-            description="The email MIME payload",
+            description='The email MIME payload',
         ),
     ).to_dict()

@@ -1,9 +1,3 @@
-"""REST client handling, including SalesloftStream base class."""
-
-from __future__ import annotations
-
-from typing import Any, Callable, Iterable
-
 import re
 import requests
 import time
@@ -11,120 +5,74 @@ import time
 from singer_sdk.authenticators import BearerTokenAuthenticator
 from singer_sdk.helpers._typing import TypeConformanceLevel
 from singer_sdk.helpers.jsonpath import extract_jsonpath
-from singer_sdk.pagination import BaseAPIPaginator  # noqa: TCH002
+from singer_sdk.pagination import BaseAPIPaginator, JSONPathPaginator
 from singer_sdk.streams import RESTStream
 
-_Auth = Callable[[requests.PreparedRequest], requests.PreparedRequest]
-second_match = re.compile("[0-9]{2}:[0-9]{2}:([0-9]{2})")
+second_match = re.compile('[0-9]{2}:[0-9]{2}:([0-9]{2})')
 
+class SalesloftReplicationKeyPaginator(BaseAPIPaginator):
+    def __init__(self, replication_key):
+        super().__init__(start_value=None)
+        self.replication_key = replication_key
+
+    def has_more(self, response):
+        next_page = extract_jsonpath('$.metadata.paging.next_page', response.json())
+        return next(next_page, None) is not None
+
+    def get_next(self, response):
+        updated_ats = extract_jsonpath(f'$.data[*].{self.replication_key}', response.json())
+        return next(iter(sorted(updated_ats, reverse=True)), None)
 
 class SalesloftStream(RESTStream):
-    """Salesloft stream class."""
+    records_jsonpath = '$.data[*]'
 
-    def __init__(self, tap, name = None, schema = None, path = None):
-        """Initialize the REST stream.
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        Args:
-            tap: Singer Tap this stream belongs to.
-            schema: JSON schema for records in this stream.
-            name: Name of this stream.
-            path: URL path for this entity stream.
-        """
-        super().__init__(tap=tap, name=name, schema=schema, path=path)
-
-        if self.config.get("stream_type_conformance") == "none":
-            self.TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.NONE
-        elif self.config.get("stream_type_conformance") == "root_only":
-            self.TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.ROOT_ONLY
-        elif self.config.get("stream_type_conformance") == "recursive":
-            self.TYPE_CONFORMANCE_LEVEL = TypeConformanceLevel.RECURSIVE
-
-        self.records_jsonpath = "$.data[*]"
-        self.next_page_token_jsonpath = "$.metadata.paging.next_page"  # noqa: S105
+        self.TYPE_CONFORMANCE_LEVEL = {
+            'none': TypeConformanceLevel.NONE,
+            'root_only': TypeConformanceLevel.ROOT_ONLY,
+            'recursive': TypeConformanceLevel.RECURSIVE,
+        }.get(self.config['stream_type_conformance'])
 
     @property
-    def url_base(self) -> str:
-        """Return the API URL root, configurable via tap settings."""
-        return self.config.get("api_base_url")
+    def url_base(self):
+        return self.config.get('api_base_url')
 
     @property
-    def authenticator(self) -> BearerTokenAuthenticator:
-        """Return a new authenticator object.
+    def authenticator(self):
+        return BearerTokenAuthenticator(self, self.config.get('api_key'))
 
-        Returns:
-            An authenticator instance.
-        """
-        return BearerTokenAuthenticator.create_for_stream(
-            self,
-            token=self.config.get("api_key"),
-        )
+    def get_new_paginator(self):
+        if self.replication_key:
+            return SalesloftReplicationKeyPaginator(self.replication_key)
+        else:
+            return JSONPathPaginator('$.metadata.paging.next_page')
 
-    @property
-    def http_headers(self) -> dict:
-        """Return the http headers needed.
-
-        Returns:
-            A dictionary of HTTP headers.
-        """
-        headers = {}
-        if "user_agent" in self.config:
-            headers["User-Agent"] = self.config.get("user_agent")
-
-        return headers
-
-    def get_url_params(
-        self,
-        context: dict | None,  # noqa: ARG002
-        next_page_token: Any | None,
-    ) -> dict[str, Any]:
-        """Return a dictionary of values to be used in URL parameterization.
-
-        Args:
-            context: The stream context.
-            next_page_token: The next page index or value.
-
-        Returns:
-            A dictionary of URL query parameters.
-        """
-
-        params = {"per_page": self.config.get("page_size")}
-
-        if next_page_token:
-            params["page"] = next_page_token
+    def get_url_params(self, context, next_page_token):
+        params = {'per_page': self.config.get('page_size')}
 
         if self.replication_key:
-            params["sort_direction"] = "asc"
-            params["sort_by"] = self.replication_key
-            params[f"{self.replication_key}[gt]"] = self.get_starting_timestamp(
-                context
-            ).isoformat()
+            params['sort_direction'] = 'asc'
+            params['sort_by'] = self.replication_key
+            if next_page_token is not None:
+                params[f'{self.replication_key}[gt]'] = next_page_token
+            else:
+                params[f'{self.replication_key}[gt]'] = self.get_starting_timestamp(context).isoformat()
+
+        elif next_page_token is not None:
+            params['page'] = next_page_token
 
         return params
 
-    def parse_response(self, response: requests.Response) -> Iterable[dict]:
-        """Parse the response and return an iterator of result records.
-
-        Args:
-            response: The HTTP ``requests.Response`` object.
-
-        Yields:
-            Each record from the source.
-        """
-
-        # API returns data about remaining rate limit
-        rate_seconds_remaining = 61 - int(
-            second_match.findall(response.headers.get("Date", "00:00:61"))[0]
-        )
+    def parse_response(self, response: requests.Response):
+        rate_seconds_remaining = 61 - int(second_match.findall(response.headers.get('Date', '00:00:61'))[0])
         if rate_seconds_remaining == 61:
             rate_seconds_remaining = 1
 
-        rate_last_request_cost = int(
-            response.headers.get("x-ratelimit-endpoint-cost", 0)
-        )
+        rate_last_request_cost = int(response.headers.get('x-ratelimit-endpoint-cost', 0))
 
-        rate_points_remaining = int(
-            response.headers.get("x-ratelimit-remaining-minute", 0)
-        )
+        rate_points_remaining = int(response.headers.get('x-ratelimit-remaining-minute', 0))
 
         # Calculate delay according to current usage versus target rate
         if rate_points_remaining > rate_last_request_cost:
@@ -134,12 +82,11 @@ class SalesloftStream(RESTStream):
                 * rate_last_request_cost
                 * 100
                 / rate_points_remaining
-                / self.config.get("rate_target_pct"),
+                / self.config.get('rate_target_pct'),
             )
         else:
             delay = rate_seconds_remaining
 
-        # Discount the time it took to get the response
         delay -= response.elapsed.total_seconds()
 
         if delay > 0:

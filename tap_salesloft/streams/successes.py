@@ -9,116 +9,89 @@ from singer_sdk.typing import (
     StringType,
 )
 
-
 class SuccessesStream(SalesloftStream):
-    """Successes Stream, referenced from https://developers.salesloft.com/docs/api/successes-index"""
+    '''Successes Stream, referenced from https://developers.salesloft.com/docs/api/successes-index'''
 
-    name = "successes"
-    path = "/v2/successes"
-    primary_keys = ["id"]
-    replication_key = "updated_at"
+    name = 'successes'
+    path = '/v2/successes'
+    primary_keys = ['id']
+    replication_key = 'updated_at'
 
     schema = PropertiesList(
+        Property('id', IntegerType, required=True, description='ID of success', examples=[1]),
+        Property('created_at', DateTimeType, description='Datetime of when the success was created', examples=['2025-01-01T00:00:00.000000+00:00']),
+        Property('updated_at', DateTimeType, required=True, description='Datetime of when the success was last updated', examples=['2025-01-01T00:00:00.000000+00:00']),
+        Property('succeeded_at', DateTimeType, description='Datetime of when the success was recorded', examples=['2025-01-01T00:00:00.000000+00:00']),
+        Property('success_window_started_at', DateTimeType, description='Datetime of when this person was first worked, leading up to the success', examples=['2025-01-01T00:00:00.000000+00:00']),
+
         Property(
-            "id",
-            IntegerType,
-            required=True,
-            description="ID of success",
-        ),
-        Property(
-            "created_at",
-            DateTimeType,
-            description="Datetime of when the success was created",
-        ),
-        Property(
-            "updated_at",
-            DateTimeType,
-            required=True,
-            description="Datetime of when the success was last updated",
-        ),
-        Property(
-            "succeeded_at",
-            DateTimeType,
-            description="Datetime of when the success was recorded",
-        ),
-        Property(
-            "success_window_started_at",
-            DateTimeType,
-            description="Datetime of when this person was first worked, leading up to the success",
-        ),
-        Property(
-            "user",
+            'user',
             ObjectType(
-                Property("id", IntegerType),
-                Property("_href", StringType),
+                Property('id', IntegerType, examples=[1]),
+                Property('_href', StringType, examples=['https://api.salesloft.com/v2/users/1']),
             ),
-            description="User that created this success",
+            description='User that created this success',
         ),
+
         Property(
-            "person",
+            'person',
             ObjectType(
-                Property("id", IntegerType),
-                Property("_href", StringType),
+                Property('id', IntegerType, examples=[1]),
+                Property('_href', StringType, examples=['https://api.salesloft.com/v2/people/1']),
             ),
-            description="The person who a success occurred on",
+            description='The person who a success occurred on',
         ),
+
         Property(
-            "latest_email",
+            'latest_email',
             ObjectType(
-                Property("id", IntegerType),
-                Property("_href", StringType),
+                Property('id', IntegerType, examples=[1]),
+                Property('_href', StringType, examples=['https://api.salesloft.com/v2/activities/emails/1']),
             ),
-            description="The email that was most recently sent to this person before the success",
+            description='The email that was most recently sent to this person before the success',
         ),
+
         Property(
-            "latest_call",
+            'latest_call',
             ObjectType(
-                Property("id", IntegerType),
-                Property("_href", StringType),
+                Property('id', IntegerType, examples=[2]),
+                Property('_href', StringType, examples=['https://api.salesloft.com/v2/activities/calls/2']),
             ),
-            description="The call that was most recently made to this person before the success",
+            description='The call that was most recently made to this person before the success',
         ),
+
         Property(
-            "latest_action",
+            'latest_action',
             ObjectType(
-                Property("id", IntegerType),
+                Property('id', IntegerType, examples=[3]),
             ),
-            description="The action that was most recently completed on this person before the success",
+            description='The action that was most recently completed on this person before the success',
         ),
+
         Property(
-            "latest_cadence",
+            'latest_cadence',
             ObjectType(
-                Property("id", IntegerType),
-                Property("_href", StringType),
+                Property('id', IntegerType, examples=[4]),
+                Property('_href', StringType, examples=['https://api.salesloft.com/v2/cadences/4']),
             ),
-            description="The cadence with the action that was most recently completed on this person before the success",
+            description='The cadence with the action that was most recently completed on this person before the success',
         ),
+
         Property(
-            "latest_step",
+            'latest_step',
             ObjectType(
-                Property("id", IntegerType),
-                Property("_href", StringType),
+                Property('id', IntegerType, examples=[5]),
+                Property('_href', StringType, examples=['https://api.salesloft.com/v2/steps/5']),
             ),
-            description="The step of the cadence's action that was most recently completed on this person before the success",
+            description='The step of the cadence''s action that was most recently completed on this person before the success',
         ),
+
         Property(
-            "counts",
+            'counts',
             ObjectType(
-                Property(
-                    "total_emails",
-                    IntegerType,
-                    description="The total number of emails made in this success window",
-                ),
-                Property(
-                    "total_calls",
-                    IntegerType,
-                    description="The total number of calls made in this success window",
-                ),
-                Property(
-                    "total_other_touches",
-                    IntegerType,
-                    description="The total number of other touches made in this success window",
-                ),
+                Property('total_emails', IntegerType, description='The total number of emails made in this success window', examples=[2]),
+                Property('total_calls', IntegerType, description='The total number of calls made in this success window', examples=[5]),
+                Property('total_other_touches', IntegerType, description='The total number of other touches made in this success window', examples=[3]),
             ),
         ),
     ).to_dict()

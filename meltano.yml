@@ -36,13 +36,12 @@ plugins:
       kind: object
     - name: stream_maps_config
       kind: object
-    - name: user_agent
-      kind: string
-    config:
-      start_date: '2011-09-01T00:00:00Z'
     select:
     - '*.*'
+
   loaders:
   - name: target-jsonl
     variant: andyh1203
     pip_url: target-jsonl
+    config:
+      do_timestamp_file: true
